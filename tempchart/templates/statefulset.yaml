@@ -1,0 +1,71 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: portal-f
+  namespace: helm
+  labels:
+    app: portal-f
+    release: helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: portal-f
+      release: helm
+  template:
+    metadata:
+      labels:
+        app: portal-f
+        release: helm
+    spec:
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      containers:
+        - resources: {}
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - sh
+                  - '-c'
+                  - "kill -15 `ps aux | grep '/usr/bin/java' | awk '{print $1}'`"
+          name: portal-f
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          securityContext:
+            privileged: true
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          imagePullPolicy: Always
+          terminationMessagePolicy: File
+          image: public.ecr.aws/ktds/mydata/portal-f
+      hostAliases:
+        - ip: 127.0.0.1
+          hostnames:
+            - portal-f.com
+      dnsPolicy: ClusterFirst
+  serviceName: portal-f
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  revisionHistoryLimit: 10
