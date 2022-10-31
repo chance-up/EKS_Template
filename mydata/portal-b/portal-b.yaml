@@ -62,7 +62,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: beast
-          image: public.ecr.aws/ktds/beast/portal-b:latest
+          image: public.ecr.aws/ktds/mydata/portal-b:latest
       hostAliases:
         - ip: 127.0.0.1
           hostnames:
