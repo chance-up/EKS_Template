@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: beast-king
+  labels:
+    app: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+      containers:
+      - name: backend
+        image: public.ecr.aws/x5v5o7v9/beast/backend:latest
+        ports:
+        - name: http
+          containerPort: 8080
+        imagePullPolicy: Always
+        env:
+          - name: PROFILE
+            valueFrom:
+              configMapKeyRef:
+                name: backend-cm
+                key: PROFILE

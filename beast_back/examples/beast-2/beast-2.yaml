@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: beast-2
+  namespace: beast-2
+  labels:
+    app: beast-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beast-2
+  template:
+    metadata:
+      labels:
+        app: beast-2
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+      containers:
+      - name: beast-2
+        image: public.ecr.aws/x5v5o7v9/beast/apigw:latest
+        ports:
+        - name: http
+          containerPort: 8080
+        imagePullPolicy: Always
+        env:
+          - name: PROFILE
+            valueFrom:
+              configMapKeyRef:
+                name: beast-2-cm
+                key: PROFILE

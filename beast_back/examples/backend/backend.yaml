@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: beast
+  labels:
+    app: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+      containers:
+      - name: backend
+        image: public.ecr.aws/x5v5o7v9/beast/backend:latest
+        ports:
+        - name: http
+          containerPort: 8080
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /data
+          name: backend-volume-1
+        env:
+          - name: PROFILE
+            valueFrom:
+              configMapKeyRef:
+                name: backend-cm
+                key: PROFILE
+        volumes:
+        - name: backend-volume-1
+          persistentVolumeClaim:
+            claimName: ebs-backend-pvc

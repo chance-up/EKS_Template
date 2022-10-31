@@ -1,0 +1,6 @@
+image:
+  repository: public.ecr.aws/x5v5o7v9/beast/backend
+  tag: latest
+
+apigw:
+  profile: dev

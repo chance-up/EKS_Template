@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigw-1
+  namespace: beast
+  labels:
+    app: apigw-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apigw-1
+  template:
+    metadata:
+      labels:
+        app: apigw-1
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+      containers:
+      - name: apigw-1
+        image: public.ecr.aws/x5v5o7v9/beast/apigw:latest
+        ports:
+        - name: http
+          containerPort: 8080
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /data
+          name: apigw-volume-1
+        env:
+          - name: PROFILE
+            valueFrom:
+              configMapKeyRef:
+                name: apigw-cm
+                key: PROFILE
+      volumes:
+      - name: apigw-volume-1
+        persistentVolumeClaim:
+          claimName: ebs-apigw-pvc-1

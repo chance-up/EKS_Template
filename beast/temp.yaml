@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: mongodb-test
+  name: mongodb-test
+  namespace: api-link-gw
+spec:
+  ports:
+  - port: 27017
+    protocol: TCP
+    targetPort: 27017
+  selector:
+    app: mongodb-test
+    release: api-link-gw
+  type: ClusterIP

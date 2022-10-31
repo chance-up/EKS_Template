@@ -1,0 +1,42 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: portal-b
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: portal-b
+  template:
+    metadata:
+      labels:
+        app: portal-b
+    spec:
+      containers:
+        - resources: {}
+          terminationMessagePath: /dev/termination-log
+          name: portal-b
+          securityContext:
+            privileged: true
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          imagePullPolicy: Always
+          terminationMessagePolicy: File
+          envFrom:
+            - configMapRef:
+                name: beast
+          image: public.ecr.aws/ktds/api-link-gw/portal-b:latest
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 10
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  serviceName: portal-b
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  revisionHistoryLimit: 10

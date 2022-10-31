@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: mongodb
+    release: api-link-gw
+  name: mongodb
+  namespace: api-link-gw
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: mongodb
+      release: api-link-gw
+  serviceName: mongodb
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: mongodb
+        release: api-link-gw
+    spec:
+      containers:
+      - command:
+        - sh
+        - -c
+        - |
+          /bin/bash <<'EOF'
+          mongod --replSet replset --bind_ip_all --dbpath '/db/$(POD_ID)'
+          EOF
+        env:
+        - name: POD_ID
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        image: mongo
+        imagePullPolicy: Always
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - sh
+              - -c
+              - kill -15 `ps aux | grep '/usr/bin/java' | awk '{print $1}'`
+        name: mongodb
+        ports:
+        - containerPort: 27017
+          name: service
+          protocol: TCP
+        resources: {}
+        securityContext:
+          privileged: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /db
+          name: beast
+      dnsPolicy: ClusterFirst
+      hostAliases:
+      - hostnames:
+        - beast.com
+        ip: 127.0.0.1
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: beast
+        persistentVolumeClaim:
+          claimName: beast
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate

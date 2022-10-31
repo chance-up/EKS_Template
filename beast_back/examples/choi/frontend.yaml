@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: beast-c
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+      containers:
+      - name: frontend
+        image: public.ecr.aws/x5v5o7v9/beast/frontend:latest
+        ports:
+        - name: http
+          containerPort: 80
+        imagePullPolicy: Always
+        env:
+          - name: PROFILE
+            valueFrom:
+              configMapKeyRef:
+                name: frontend-cm
+                key: PROFILE

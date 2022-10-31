@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: beast-2-svc
+  namespace: beast-2
+spec:
+  selector:
+    app: beast-2
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

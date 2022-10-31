@@ -1,0 +1,84 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: portal-b
+  namespace: api-link-gw
+  labels:
+    app: portal-b
+    release: api-link-gw
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: portal-b
+      release: api-link-gw
+  template:
+    metadata:
+      labels:
+        app: portal-b
+        release: api-link-gw
+    spec:
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      containers:
+        - resources: {}
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          name: portal-b
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - sh
+                  - '-c'
+                  - 'kill -15 `ps aux | grep ''/usr/bin/java'' | awk ''{print $1}''`'
+          name: portal-b
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          securityContext:
+            privileged: true
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: beast
+              mountPath: /data/beast
+          terminationMessagePolicy: File
+          envFrom:
+            - configMapRef:
+                name: beast
+            - secretRef:
+                name: beast
+          image: public.ecr.aws/ktds/api-link-gw/portal-b:latest
+      hostAliases:
+        - ip: 127.0.0.1
+          hostnames:
+            - portal-b.com
+      volumes:
+        - name: beast
+          persistentVolumeClaim:
+            claimName: beast
+      dnsPolicy: ClusterFirst
+  serviceName: portal-b
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  revisionHistoryLimit: 10

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: beast-2-cm
+  namespace: beast-2
+data:
+  PROFILE: dev

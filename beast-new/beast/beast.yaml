@@ -1,0 +1,86 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: beast
+  namespace: beast
+  labels:
+    app: beast
+    release: beast
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beast
+      release: beast
+  template:
+    metadata:
+      labels:
+        app: beast
+        release: beast
+    spec:
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      containers:
+        - resources: {}
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          terminationMessagePath: /dev/termination-log
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - sh
+                  - '-c'
+                  - 'kill -15 `ps aux | grep ''/usr/bin/java'' | awk ''{print $1}''`'
+          name: beast
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          securityContext:
+            privileged: true
+          ports:
+            - name: service
+              containerPort: 8080
+              protocol: TCP
+            - name: actuator
+              containerPort: 8000
+              protocol: TCP
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: beast
+              mountPath: /data/beast
+          terminationMessagePolicy: File
+          envFrom:
+            - configMapRef:
+                name: beast
+          image: public.ecr.aws/ktds/beast/beast:latest
+      hostAliases:
+        - ip: 127.0.0.1
+          hostnames:
+            - beast.com
+      volumes:
+        - name: beast
+          persistentVolumeClaim:
+            claimName: beast
+      dnsPolicy: ClusterFirst
+  serviceName: beast
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  revisionHistoryLimit: 10
+
+

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigw-hr
+  namespace: beast-1
+  labels:
+    app: apigw-hr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apigw-hr
+  template:
+    metadata:
+      labels:
+        app: apigw-hr
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+      containers:
+      - name: apigw-hr
+        image: public.ecr.aws/x5v5o7v9/beast/apigw:latest
+        ports:
+        - name: http
+          containerPort: 8080
+        imagePullPolicy: Always
+        env:
+          - name: PROFILE
+            valueFrom:
+              configMapKeyRef:
+                name: apigw-hr-cm
+                key: PROFILE
