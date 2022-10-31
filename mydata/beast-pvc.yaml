@@ -1,11 +1,12 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mydata
+  name: beast
+  namespace: mydata
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: beast-efs-sc
+  storageClassName: mydata-efs-sc
   resources:
     requests:
       storage: 5Gi
