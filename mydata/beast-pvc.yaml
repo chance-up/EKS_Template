@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: beast
+  name: mydata
 spec:
   accessModes:
     - ReadWriteMany

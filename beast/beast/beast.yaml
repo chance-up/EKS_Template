@@ -2,21 +2,21 @@ kind: StatefulSet
 apiVersion: apps/v1
 metadata:
   name: beast
-  namespace: api-link-gw
+  namespace: beast
   labels:
     app: beast
-    release: api-link-gw
+    release: beast
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: beast
-      release: api-link-gw
+      release: beast
   template:
     metadata:
       labels:
         app: beast
-        release: api-link-gw
+        release: beast
     spec:
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -65,9 +65,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: beast
-            - secretRef:
-                name: beast
-          image: 3.39.117.244:5000/beast/api-link-gw/beast:api-link-gw-1.0.0
+          image: public.ecr.aws/ktds/beast/beast:latest
       hostAliases:
         - ip: 127.0.0.1
           hostnames:
@@ -77,8 +75,6 @@ spec:
           persistentVolumeClaim:
             claimName: beast
       dnsPolicy: ClusterFirst
-      imagePullSecrets:
-        - name: api-link-gw-nexus
   serviceName: beast
   podManagementPolicy: OrderedReady
   updateStrategy:

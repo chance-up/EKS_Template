@@ -2,21 +2,21 @@ kind: StatefulSet
 apiVersion: apps/v1
 metadata:
   name: portal-b
-  namespace: beast
+  namespace: mydata
   labels:
     app: portal-b
-    release: beast
+    release: mydata
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: portal-b
-      release: beast
+      release: mydata
   template:
     metadata:
       labels:
         app: portal-b
-        release: beast
+        release: mydata
     spec:
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -32,14 +32,13 @@ spec:
             successThreshold: 1
             failureThreshold: 3
           terminationMessagePath: /dev/termination-log
-          name: portal-b
           lifecycle:
             preStop:
               exec:
                 command:
                   - sh
                   - '-c'
-                  - 'kill -15 `ps aux | grep ''/usr/bin/java'' | awk ''{print $1}''`'
+                  - "kill -15 `ps aux | grep '/usr/bin/java' | awk '{print $1}'`"
           name: portal-b
           livenessProbe:
             tcpSocket:

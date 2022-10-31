@@ -2,21 +2,21 @@ kind: StatefulSet
 apiVersion: apps/v1
 metadata:
   name: portal-f
-  namespace: api-link-gw
+  namespace: beast
   labels:
     app: portal-f
-    release: api-link-gw
+    release: beast
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: portal-f
-      release: api-link-gw
+      release: beast
   template:
     metadata:
       labels:
         app: portal-f
-        release: api-link-gw
+        release: beast
     spec:
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -66,10 +66,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: beast
-            - secretRef:
-                name: beast
           name: portal-f
-          image: public.ecr.aws/x5v5o7v9/beast/frontend:latest
+          image: public.ecr.aws/ktds/beast/portal-f
       hostAliases:
         - ip: 127.0.0.1
           hostnames:

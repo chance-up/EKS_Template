@@ -2,37 +2,37 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: beast
-  namespace: beast
+  namespace: mydata
 data:
   PROFILE: dev
   JAVA_OPTS: '-Dserver.port=8080 -Ddata.system[0].sysId=MNGT -Ddata.system[0].edpt.prot=HTTP -Ddata.system[0].edpt.atrib.url[0]=http://portal-b:8080 -Dspring.data.mongodb.uri=mongodb://mongodb-0.mongodb:27017,mongodb-1.mongodb:27017,mongodb-2.mongodb:27017 -Dspring.data.mongodb.database=APIGW -Dspring.data.mongodb.username=act_user -Dspring.data.mongodb.password=sksmsahffk1! -Dspring.data.primary.mongodb.uri=mongodb://mongodb-0.mongodb:27017,mongodb-1.mongodb:27017,mongodb-2.mongodb:27017/?readPreference=nearest -Dspring.data.primary.mongodb.database=APIGW -Dspring.data.primary.mongodb.username=act_user -Dspring.data.primary.mongodb.password=sksmsahffk1! -Dspring.data.secondary.mongodb.uri=mongodb://mongodb-0.mongodb:27017,mongodb-1.mongodb:27017,mongodb-2.mongodb:27017/?readPreference=nearest -Dspring.data.secondary.mongodb.database=TBAPIGW -Dspring.data.secondary.mongodb.username=act_user -Dspring.data.secondary.mongodb.password=sksmsahffk1!'
   nginx.conf: |-
     user  nginx;
     worker_processes  auto;
-    
+
     error_log  /var/log/nginx/error.log notice;
     pid        /var/run/nginx.pid;
-    
-    
+
+
     events {
         worker_connections  1024;
     }
-    
-    
+
+
     http {
         include       /etc/nginx/mime.types;
         default_type  application/octet-stream;
-    
+
         log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                           '$status $body_bytes_sent "$http_referer" '
                           '"$http_user_agent" "$http_x_forwarded_for"';
-    
+
         access_log  /var/log/nginx/access.log  main;
-    
+
         sendfile        on;
-    
+
         keepalive_timeout  65;
-    
+
         server {
                 listen       80;
                 listen  [::]:80;
@@ -73,4 +73,4 @@ data:
         
                 add_header X-Frame-Options DENY;
         }
-    }  
+    }

@@ -2,21 +2,21 @@ kind: StatefulSet
 apiVersion: apps/v1
 metadata:
   name: beast
-  namespace: beast
+  namespace: mydata
   labels:
     app: beast
-    release: beast
+    release: mydata
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: beast
-      release: beast
+      release: mydata
   template:
     metadata:
       labels:
         app: beast
-        release: beast
+        release: mydata
     spec:
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -38,7 +38,7 @@ spec:
                 command:
                   - sh
                   - '-c'
-                  - 'kill -15 `ps aux | grep ''/usr/bin/java'' | awk ''{print $1}''`'
+                  - "kill -15 `ps aux | grep '/usr/bin/java' | awk '{print $1}'`"
           name: beast
           livenessProbe:
             tcpSocket:
@@ -82,5 +82,3 @@ spec:
     rollingUpdate:
       partition: 0
   revisionHistoryLimit: 10
-
-

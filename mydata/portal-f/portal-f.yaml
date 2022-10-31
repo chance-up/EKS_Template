@@ -2,21 +2,21 @@ kind: StatefulSet
 apiVersion: apps/v1
 metadata:
   name: portal-f
-  namespace: beast
+  namespace: mydata
   labels:
     app: portal-f
-    release: beast
+    release: mydata
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: portal-f
-      release: beast
+      release: mydata
   template:
     metadata:
       labels:
         app: portal-f
-        release: beast
+        release: mydata
     spec:
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -38,7 +38,7 @@ spec:
                 command:
                   - sh
                   - '-c'
-                  - 'kill -15 `ps aux | grep ''/usr/bin/java'' | awk ''{print $1}''`'
+                  - "kill -15 `ps aux | grep '/usr/bin/java' | awk '{print $1}'`"
           name: portal-f
           livenessProbe:
             tcpSocket:
@@ -66,7 +66,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: beast
-          name: portal-f
           image: public.ecr.aws/ktds/beast/portal-f
       hostAliases:
         - ip: 127.0.0.1

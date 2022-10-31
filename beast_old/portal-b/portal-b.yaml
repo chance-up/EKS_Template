@@ -1,21 +1,21 @@
 kind: StatefulSet
 apiVersion: apps/v1
 metadata:
-  name: beast
+  name: portal-b
   namespace: api-link-gw
   labels:
-    app: beast
+    app: portal-b
     release: api-link-gw
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: beast
+      app: portal-b
       release: api-link-gw
   template:
     metadata:
       labels:
-        app: beast
+        app: portal-b
         release: api-link-gw
     spec:
       restartPolicy: Always
@@ -32,6 +32,7 @@ spec:
             successThreshold: 1
             failureThreshold: 3
           terminationMessagePath: /dev/termination-log
+          name: portal-b
           lifecycle:
             preStop:
               exec:
@@ -39,7 +40,7 @@ spec:
                   - sh
                   - '-c'
                   - 'kill -15 `ps aux | grep ''/usr/bin/java'' | awk ''{print $1}''`'
-          name: beast
+          name: portal-b
           livenessProbe:
             tcpSocket:
               port: 8080
@@ -51,26 +52,30 @@ spec:
           securityContext:
             privileged: true
           ports:
-            - name: service
+            - name: http
               containerPort: 8080
               protocol: TCP
-            - name: actuator
-              containerPort: 8000
-              protocol: TCP
           imagePullPolicy: Always
+          volumeMounts:
+            - name: beast
+              mountPath: /data/beast
           terminationMessagePolicy: File
           envFrom:
             - configMapRef:
                 name: beast
             - secretRef:
                 name: beast
-          image: public.ecr.aws/ktds/api-link-gw/beast:latest
+          image: public.ecr.aws/ktds/api-link-gw/portal-b:latest
       hostAliases:
         - ip: 127.0.0.1
           hostnames:
-            - beast.com
+            - portal-b.com
+      volumes:
+        - name: beast
+          persistentVolumeClaim:
+            claimName: beast
       dnsPolicy: ClusterFirst
-  serviceName: beast
+  serviceName: portal-b
   podManagementPolicy: OrderedReady
   updateStrategy:
     type: RollingUpdate
